@@ -1,0 +1,5 @@
+environment   = "prod"
+region        = "us-east-1"
+github_org    = "PacificHealthSolution"
+github_repo   = "FHIR-INFRAESTRUCTURA"
+github_branch = "main"
