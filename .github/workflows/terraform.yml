@@ -15,9 +15,6 @@ jobs:
     name: Terraform
     runs-on: ubuntu-latest
     
-    env:
-      TF_VAR_environment: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
-    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,17 +28,28 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Terraform Init
+      - name: Set Environment Directory
+        id: set-env
         run: |
-          terraform init \
-            -backend-config="key=${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}/terraform.tfstate"
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "env_dir=environments/prod" >> $GITHUB_OUTPUT
+          else
+            echo "env_dir=environments/dev" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Terraform Init
+        working-directory: ${{ steps.set-env.outputs.env_dir }}
+        run: terraform init
 
       - name: Terraform Validate
+        working-directory: ${{ steps.set-env.outputs.env_dir }}
         run: terraform validate
 
       - name: Terraform Plan
-        run: terraform plan -var-file="${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}.tfvars"
+        working-directory: ${{ steps.set-env.outputs.env_dir }}
+        run: terraform plan
 
       - name: Terraform Apply
         if: (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main') && github.event_name == 'push'
-        run: terraform apply -auto-approve -var-file="${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}.tfvars"
+        working-directory: ${{ steps.set-env.outputs.env_dir }}
+        run: terraform apply -auto-approve
