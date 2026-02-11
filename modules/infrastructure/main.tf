@@ -1,7 +1,9 @@
-# Data source para obtener información del datastore de HealthLake
-data "aws_healthlake_fhir_datastore" "main" {
-  datastore_id = var.datastore_id
+# Construir ARN del datastore manualmente
+locals {
+  datastore_arn = "arn:aws:healthlake:${var.region}:${data.aws_caller_identity.current.account_id}:datastore/fhir/${var.datastore_id}"
 }
+
+data "aws_caller_identity" "current" {}
 
 # Rol IAM para las Lambdas
 resource "aws_iam_role" "lambda_role" {
@@ -40,7 +42,7 @@ resource "aws_iam_role_policy" "lambda_healthlake_policy" {
           "healthlake:SearchWithPost",
           "healthlake:GetCapabilities"
         ]
-        Resource = data.aws_healthlake_fhir_datastore.main.arn
+        Resource = local.datastore_arn
       },
       {
         Effect = "Allow"

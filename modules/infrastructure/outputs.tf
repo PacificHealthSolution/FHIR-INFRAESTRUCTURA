@@ -5,7 +5,7 @@ output "environment" {
 
 output "api_gateway_url" {
   description = "API Gateway URL"
-  value       = aws_api_gateway_deployment.fhir_api.invoke_url
+  value       = "${aws_api_gateway_deployment.fhir_api.invoke_url}${aws_api_gateway_deployment.fhir_api.stage_name}/"
 }
 
 output "lambda_functions" {
@@ -20,5 +20,5 @@ output "lambda_functions" {
 
 output "datastore_arn" {
   description = "HealthLake Datastore ARN"
-  value       = data.aws_healthlake_fhir_datastore.main.arn
+  value       = local.datastore_arn
 }
