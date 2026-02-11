@@ -17,5 +17,22 @@ terraform {
 }
 
 provider "aws" {
-  region = "us-east-1"
+  region = var.region
+}
+
+module "infrastructure" {
+  source = "../../modules/infrastructure"
+  
+  environment = "dev"
+  region      = var.region
+}
+
+variable "region" {
+  description = "AWS region"
+  type        = string
+  default     = "us-east-1"
+}
+
+output "environment" {
+  value = "dev"
 }
