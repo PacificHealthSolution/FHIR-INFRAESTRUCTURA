@@ -11,10 +11,9 @@ output "api_gateway_url" {
 output "lambda_functions" {
   description = "Lambda function names"
   value = {
-    patient      = aws_lambda_function.patient.function_name
-    professional = aws_lambda_function.professional.function_name
-    organization = aws_lambda_function.organization.function_name
-    location     = aws_lambda_function.location.function_name
+    mapper_fhir     = aws_lambda_function.mapper_fhir.function_name
+    create_resource = aws_lambda_function.create_resource.function_name
+    modify_resource = aws_lambda_function.modify_resource.function_name
   }
 }
 
