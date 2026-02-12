@@ -5,7 +5,7 @@ output "environment" {
 
 output "api_gateway_url" {
   description = "API Gateway URL"
-  value       = "${aws_api_gateway_deployment.fhir_api.invoke_url}${aws_api_gateway_deployment.fhir_api.stage_name}/"
+  value       = "https://${aws_api_gateway_rest_api.fhir_api.id}.execute-api.${var.region}.amazonaws.com/${aws_api_gateway_stage.fhir_api.stage_name}/"
 }
 
 output "lambda_functions" {
