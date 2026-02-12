@@ -250,5 +250,22 @@ resource "aws_api_gateway_deployment" "fhir_api" {
   ]
 
   rest_api_id = aws_api_gateway_rest_api.fhir_api.id
-  stage_name  = var.environment
+
+  triggers = {
+    redeployment = sha1(jsonencode([
+      aws_api_gateway_resource.mapper_fhir.id,
+      aws_api_gateway_method.mapper_fhir_any.id,
+      aws_api_gateway_integration.mapper_fhir_lambda.id,
+    ]))
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_api_gateway_stage" "fhir_api" {
+  deployment_id = aws_api_gateway_deployment.fhir_api.id
+  rest_api_id   = aws_api_gateway_rest_api.fhir_api.id
+  stage_name    = var.environment
 }
