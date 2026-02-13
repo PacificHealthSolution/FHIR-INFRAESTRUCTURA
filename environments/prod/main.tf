@@ -34,5 +34,13 @@ variable "region" {
 }
 
 output "environment" {
-  value = "prod"
+  value = module.infrastructure.environment
+}
+
+output "api_gateway_url" {
+  value = module.infrastructure.api_gateway_url
+}
+
+output "lambda_functions" {
+  value = module.infrastructure.lambda_functions
 }
