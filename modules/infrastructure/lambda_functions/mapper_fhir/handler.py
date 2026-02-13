@@ -2,7 +2,7 @@ import json
 import os
 import boto3
 
-DATASTORE_ID = os.environ.get('DATASTORE_ID')
+DATASTORE_ID = os.environ.get('DATASTORE_ID') 
 REGION = os.environ.get('REGION')
 CREATE_RESOURCE_LAMBDA = os.environ.get('CREATE_RESOURCE_LAMBDA')
 MODIFY_RESOURCE_LAMBDA = os.environ.get('MODIFY_RESOURCE_LAMBDA')

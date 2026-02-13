@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 from typing import Optional, List
 
 
-class Documento(BaseModel):
+class Documento(BaseModel): 
     tipo: str = Field(..., description="Tipo de documento (CC, TI, CE, etc.)")
     numero: str = Field(..., description="Número de documento")
 
