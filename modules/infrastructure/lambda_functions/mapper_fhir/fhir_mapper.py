@@ -56,6 +56,10 @@ class FhirMapper:
     def map_patient(self, patient_data: Any) -> JsonDict:
         return self._convert_to_fhir_patient(patient_data)
 
+    def map_coverage(self, coverage_data: Any) -> JsonDict:
+        return self._convert_to_fhir_coverage(coverage_data)
+
+
     def map_bundle_transaction(
         self,
         *,
@@ -63,6 +67,7 @@ class FhirMapper:
         location: Optional[Any] = None,
         practitioner: Optional[Any] = None,
         patient: Optional[Any] = None,
+        coverage: Optional[Any] = None,
         method: str = "POST",
         group_id: Optional[str] = None,
     ) -> JsonDict:
@@ -105,8 +110,78 @@ class FhirMapper:
         if patient is not None:
             _add(self.map_patient(patient))
 
+        if coverage is not None:
+            _add(self.map_coverage(coverage))
+
         bundle = {"resourceType": "Bundle", "type": "transaction", "entry": entry}
         return self._drop_nones(bundle)
+
+
+    def _convert_to_fhir_coverage(self, coverage_data: Any) -> JsonDict:
+        cov = self._as_dict(coverage_data)
+
+        self._require(
+            cov,
+            ["beneficiary_id", "payor_id", "start", "subscriber_id", "relationship_code", "value", "name"],
+            label="Coverage",
+        )
+
+        coverage: JsonDict = {
+            "resourceType": "Coverage",
+            "status": "active",
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                        "code": cov.get("type_code") or "EHCPOL",
+                        "display": cov.get("type_display") or "Extended healthcare",
+                    }
+                ]
+            },
+            "beneficiary": {"reference": f"Patient/{cov['beneficiary_id']}"},
+            "payor": [{"reference": f"Organization/{cov['payor_id']}"}],
+            "period": {"start": cov["start"], "end": cov.get("end")},
+            "class": [
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/coverage-class",
+                                "code": cov.get("class_code") or "plan",
+                                "display": cov.get("class_display") or "Plan",
+                            }
+                        ]
+                    },
+                    "value": cov["value"],
+                    "name": cov["name"],
+                }
+            ],
+            "relationship": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/subscriber-relationship",
+                        "code": cov.get("relationship_code") or "self",
+                    }
+                ]
+            },
+            "subscriberId": cov["subscriber_id"],
+        }
+
+        if cov.get("type_text"):
+            coverage["type"]["text"] = cov["type_text"]
+
+        if cov.get("beneficiary_display"):
+            coverage["beneficiary"]["display"] = cov["beneficiary_display"]
+
+        if cov.get("payor_display"):
+            coverage["payor"][0]["display"] = cov["payor_display"]
+
+        if cov.get("class_text"):
+            coverage["class"][0]["type"]["text"] = cov["class_text"]
+
+        return self._drop_nones(coverage)
+
+
 
     def _convert_to_fhir_organization(self, organization_data: Any) -> JsonDict:
         org = self._as_dict(organization_data)

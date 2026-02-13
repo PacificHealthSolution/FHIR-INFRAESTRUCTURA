@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 from typing import Optional, List
 
 
-class Documento(BaseModel): 
+class Documento(BaseModel):
     tipo: str = Field(..., description="Tipo de documento (CC, TI, CE, etc.)")
     numero: str = Field(..., description="Número de documento")
 
@@ -23,6 +23,30 @@ class Direccion(BaseModel):
 class Especialidad(BaseModel):
     nombre: str
     codigo: Optional[str] = None
+
+class CoverageDataIn(BaseModel):
+    beneficiary_id: str
+    beneficiary_display: Optional[str] = None
+
+    payor_id: str
+    payor_display: Optional[str] = None
+
+    start: str
+    end: Optional[str] = None
+
+    subscriber_id: str
+    relationship_code: str = "self"
+
+    type_code: str = "EHCPOL"
+    type_display: str = "Extended healthcare"
+    type_text: Optional[str] = None
+
+    class_code: str = "plan"
+    class_display: str = "Plan"
+    class_text: Optional[str] = None
+
+    value: str
+    name: str
 
 
 class DatosAcademicos(BaseModel):
